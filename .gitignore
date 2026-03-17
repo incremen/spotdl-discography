@@ -1,0 +1,15 @@
+# virtual environment
+.venv/
+
+# downloaded music
+*.mp3
+*.m4a
+*.opus
+*.flac
+
+# spotdl temp files
+*.spotdl
+spotdl_temp/
+
+# mac
+.DS_Store

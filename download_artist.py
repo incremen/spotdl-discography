@@ -2,37 +2,40 @@
 """
 download_artist.py
 
-Downloads a Spotify artist's full discography using spotdl.
-Applies runtime patches to work around Spotify Development Mode API restrictions,
-then reverts the library files back to their original state when done.
+Downloads a Spotify artist's full discography as MP3s, organized into folders.
 
 Usage:
-    python3 download_artist.py "https://open.spotify.com/artist/ARTIST_ID"
+    .venv/bin/python3 download_artist.py <spotify_artist_url>
 
-See README.md for full setup instructions.
+Example:
+    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
+
+How to get the artist URL:
+    Open Spotify → right-click the artist name → Share → Copy link to artist
+
+See README.md for full setup (credentials, VPN, etc.)
 """
 
 import sys
 import importlib.util
 import subprocess
 
-# Run spotdl via the same Python that's running this script (venv-aware)
-PYTHON = sys.executable
-
-# ── Spotify app credentials ───────────────────────────────────────────────────
-# From https://developer.spotify.com/dashboard
-CLIENT_ID     = "7b0eb6ab49f646f6ad2f2b9321aef8d6"
-CLIENT_SECRET = "2ce499b9ca4a4e81af8194f52de64df1"
+# ── Your Spotify app credentials ─────────────────────────────────────────────
+# Create a free app at https://developer.spotify.com/dashboard
+# then paste your Client ID and Client Secret below.
+CLIENT_ID     = ""
+CLIENT_SECRET = ""
 
 # ── Output folder structure ───────────────────────────────────────────────────
-# Downloads go into: <artist>/<album>/<track-number> - <title>.mp3
 # Files are saved relative to wherever you run this script from.
+# Result: Artist/Album/01 - Track Title.mp3
 OUTPUT_FORMAT = "{artist}/{album}/{track-number} - {title}.{output-ext}"
 
 # ── Patches ───────────────────────────────────────────────────────────────────
-# Spotify's Development Mode API omits certain fields and enforces a lower
-# page size limit. These patches are applied before running spotdl and
-# reverted automatically when done, so the library files stay clean.
+# Spotify's free-tier (Development Mode) API omits certain fields and enforces
+# a lower page-size limit — both of which crash spotdl out of the box.
+# These patches are applied to the library files before running spotdl and
+# reverted automatically when done, so the library stays clean between runs.
 
 PATCHES = [
     {
@@ -113,23 +116,32 @@ def revert_patches(applied):
 
 
 def main():
+    if not CLIENT_ID or not CLIENT_SECRET:
+        print("Error: CLIENT_ID and CLIENT_SECRET are not set.")
+        print("Add your Spotify app credentials at the top of this file.")
+        print("Get them at: https://developer.spotify.com/dashboard")
+        sys.exit(1)
+
     if len(sys.argv) < 2:
-        print("Usage: python3 download_artist.py \"https://open.spotify.com/artist/ARTIST_ID\"")
-        print("\nExample:")
-        print("  python3 download_artist.py \"https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK\"")
+        print(__doc__)
         sys.exit(1)
 
     artist_url = sys.argv[1]
-    applied = apply_patches()
 
+    if "open.spotify.com" not in artist_url:
+        print(f"Error: doesn't look like a Spotify URL: {artist_url}")
+        print("Example: https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK")
+        sys.exit(1)
+
+    applied = apply_patches()
     try:
         cmd = [
-            PYTHON, "-m", "spotdl", artist_url,
+            sys.executable, "-m", "spotdl", artist_url,
             "--client-id",     CLIENT_ID,
             "--client-secret", CLIENT_SECRET,
             "--output",        OUTPUT_FORMAT,
         ]
-        print(f"Running spotdl for: {artist_url}\n", flush=True)
+        print(f"Running: spotdl {artist_url}\n", flush=True)
         subprocess.run(cmd, check=False)
     finally:
         revert_patches(applied)

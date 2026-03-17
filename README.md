@@ -1,109 +1,106 @@
-# download_songs
+# spotdl-discography
 
-Downloads a Spotify artist's full discography as MP3s, organized into folders by artist and album.
+Download a full Spotify artist discography as MP3s, sorted into `Artist/Album/Track` folders. Built with [Claude Code](https://claude.ai/claude-code) to solve a bunch of annoying problems that come up when you try to do this the obvious way.
+
+It uses [spotdl](https://github.com/spotDL/spotify-downloader) under the hood — which pulls metadata from Spotify and audio from YouTube Music — so no Spotify Premium required.
 
 ---
 
-## How to use
+## Setup
 
-### 1. Connect to a VPN
-
-**This is required.** Most of Mitski's catalog (and many other artists) is geo-restricted and not available via the Spotify API from Israel. You need a VPN set to a Western country (US, Canada, UK, etc.) running directly on your Mac — not just on your phone.
-
-- Windscribe, ProtonVPN, NordVPN, etc. all work.
-- Confirm it's working by checking that `https://open.spotify.com` shows English content.
-
-### 2. Run the script
+### 1. Clone and create a virtual environment
 
 ```bash
-cd /Users/itamar/vscode_projects/download_songs
-.venv/bin/python3 download_artist.py "SPOTIFY_ARTIST_URL"
+git clone <repo-url>
+cd spotdl-discography
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 ```
 
-**Example — Mitski:**
+### 2. Get Spotify API credentials
+
+You need a free Spotify developer app:
+
+1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
+2. Click **Create app** — name and description don't matter
+3. Copy the **Client ID** and **Client Secret**
+4. Open `download_artist.py` and paste them in at the top:
+
+```python
+CLIENT_ID     = "your_client_id_here"
+CLIENT_SECRET = "your_client_secret_here"
+```
+
+### 3. Connect to a VPN (if needed)
+
+If you're in a country where parts of an artist's catalog are geo-restricted on Spotify, the API simply won't return those albums — you'll get a partial download without any error. A VPN set to the US or UK fixes this.
+
+A couple of things that *don't* work:
+- A VPN on your phone while using it as a hotspot — the Mac still goes through your ISP
+- Setting a `market` parameter in the API call — Spotify ignores it and uses the request IP anyway
+
+The VPN has to run directly on the machine running the script.
+
+### 4. Run it
+
+```bash
+.venv/bin/python3 download_artist.py "https://open.spotify.com/artist/ARTIST_ID"
+```
+
+**How to get the artist URL:** open Spotify → right-click the artist name → Share → Copy link to artist
+
+**Example:**
 ```bash
 .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
 ```
 
-To get an artist URL: open Spotify → right-click the artist name → Share → Copy link to artist.
-
-### 3. Output structure
-
-Files are saved in the current directory, organized as:
+Downloads land in the current directory, organized as:
 ```
-Artist Name/
-  Album Name/
-    01 - Track Title.mp3
-    02 - Track Title.mp3
+Mitski/
+  Puberty 2/
+    01 - Happy.mp3
+    02 - Once More to See You.mp3
+    ...
+  Be the Cowboy/
+    01 - Geyser.mp3
     ...
 ```
 
-Re-running the script on the same artist skips already-downloaded tracks automatically.
+Re-running skips already-downloaded tracks automatically, so it's safe to run again if something was interrupted.
 
 ---
 
-## Why this script exists (the problems we ran into)
+## Why this wrapper script exists
 
-### Problem 1: Spotify API geo-restriction
-The Spotify Web API returns different catalog results based on the IP address of the request. From an Israeli IP, most major artist catalogs are not returned — only locally licensed content. **Fix: use a VPN on the Mac itself** before running.
+Running `spotdl` directly against a Spotify artist URL breaks in a few ways when using a standard Development Mode app. The script patches the library before running and reverts it after, so the library files stay untouched between runs.
 
-Note: a VPN on your phone does not help — the Mac's traffic goes through your Israeli ISP regardless when using a phone hotspot.
+**Problem 1 — page size cap**
+Development Mode limits the `artist_albums` endpoint to 10 results per page, but spotdl requests 20. Spotify returns `400 Invalid limit`.
 
-### Problem 2: Spotify Development Mode API restrictions
-Spotify apps created in the developer dashboard start in "Development Mode", which has two relevant restrictions that break spotdl out of the box:
+**Problem 2 — missing metadata fields**
+Development Mode strips several fields from API responses (`label`, `genres`, `popularity`) that spotdl tries to access directly, causing `KeyError` crashes.
 
-| Field missing | Affected file | Error without patch |
+| Missing field | Crashes in | Error |
 |---|---|---|
-| `limit` capped at 10 (not 20) | `spotipy/client.py` | `400 Invalid limit` |
-| `label` omitted from album metadata | `spotdl/types/album.py`, `spotdl/types/song.py` | `KeyError: 'label'` |
-| `genres` omitted from artist/album metadata | `spotdl/types/artist.py`, `spotdl/types/song.py` | `KeyError: 'genres'` |
-| `popularity` omitted from track metadata | `spotdl/types/song.py` | `KeyError: 'popularity'` |
+| `label` | `album.py`, `song.py` | `KeyError: 'label'` |
+| `genres` | `artist.py`, `song.py` | `KeyError: 'genres'` |
+| `popularity` | `song.py` | `KeyError: 'popularity'` |
 
-`download_artist.py` patches these fields at runtime before running spotdl, and reverts the library files automatically when done.
-
-### Problem 3: Wrong artist ID in original URL
-The artist URL originally provided (`2uYWxilOVlUcdLHIvgAXLl`) was slightly wrong. The correct Mitski ID is `2uYWxilOVlUdk4oV9DvwqK`. Always copy artist URLs directly from Spotify.
-
----
-
-## Credentials
-
-The Spotify app credentials are stored in `download_artist.py`:
-
-```python
-CLIENT_ID     = "7b0eb6ab49f646f6ad2f2b9321aef8d6"
-CLIENT_SECRET = "2ce499b9ca4a4e81af8194f52de64df1"
-```
-
-These were created at https://developer.spotify.com/dashboard. If they expire or stop working, create a new app there and update these two values.
-
----
-
-## Requirements
-
-A virtual environment is set up at `.venv/` with all dependencies installed. Use it when running the script:
-
-```bash
-.venv/bin/python3 download_artist.py "SPOTIFY_ARTIST_URL"
-```
-
-To recreate it from scratch:
-```bash
-python3 -m venv .venv
-.venv/bin/pip install spotdl
-```
-
-spotdl downloads audio from YouTube Music using the Spotify metadata for matching. No Spotify Premium required.
+All of these are patched with `.get()` fallbacks. None of them affect the actual download.
 
 ---
 
 ## Troubleshooting
 
-**"Found 23 songs" but you expected more**
-VPN is not active or not routing Mac traffic. Disconnect and reconnect the VPN, then retry.
+**Got fewer songs than expected**
+The VPN probably isn't routing the Mac's traffic. Reconnect and retry. You can confirm it's working by checking whether the Spotify search API returns results in your language or the VPN country's language.
 
-**`400 Invalid limit` or `KeyError`**
-The patches didn't apply. Check that spotdl is still version 4.x (`spotdl --version`). If spotdl was upgraded and the library internals changed, the patch strings in `download_artist.py` may need updating.
+**`400 Invalid limit` or `KeyError` errors**
+The patches didn't find their target strings — spotdl may have been updated. Check `spotdl --version` and compare against what's in `requirements.txt`. If it changed, the find/replace strings in `download_artist.py` may need updating to match the new library code.
 
-**Rate limit / `Retry will occur after: 86400s`**
-Your IP was rate-limited by Spotify. Switch to a different network or VPN server and retry.
+**`Retry will occur after: 86400s`**
+Spotify rate-limited your IP. Switch VPN server or network and retry.
+
+---
+
+*Built with [Claude Code](https://claude.ai/claude-code)*
