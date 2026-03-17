@@ -8,8 +8,8 @@ Usage:
     .venv/bin/python3 download_artist.py <spotify_artist_url> [output_dir]
 
 Example:
-    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
-    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK" ~/Music
+    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb"
+    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb" ~/Music
 
 How to get the artist URL:
     Open Spotify → right-click the artist name → Share → Copy link to artist
@@ -154,7 +154,7 @@ def main():
 
     if "open.spotify.com" not in artist_url:
         print(f"Error: doesn't look like a Spotify URL: {artist_url}")
-        print("Example: https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK")
+        print("Example: https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb")
         sys.exit(1)
 
     applied = apply_patches()

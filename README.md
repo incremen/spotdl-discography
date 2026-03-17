@@ -49,21 +49,21 @@ SPOTIFY_CLIENT_SECRET=your_client_secret_here
 ### 1. Get the artist URL
 1. Open Spotify and go to the artist's page.
 2. Right-click the artist name (or click the `...` menu) → **Share** → **Copy link to artist**.
-3. It will look like: `https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK` (You can paste this full URL directly; you do not need to extract the ID).
+3. It will look like: `https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb` (You can paste this full URL directly; you do not need to extract the ID).
 
 ### 2. Run the script
 Pass the URL to the script:
 
-```bash 
-python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
+```bash
+python3 download_artist.py "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb"
 ```
 
-Downloads land in the current directory, organized as:
+Downloads land in `downloads/`, organized as:
 ```text
-Mitski/
-  Puberty 2/
-    01 - Happy.mp3
-    02 - Once More to See You.mp3
+Radiohead/
+  OK Computer/
+    01 - Airbag.mp3
+    02 - Paranoid Android.mp3
     ...
   Be the Cowboy/
     01 - Geyser.mp3
