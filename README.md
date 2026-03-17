@@ -15,7 +15,7 @@ Check with `python3 --version`. If you don't have it, download it from [python.o
 As of March 9, 2026, Spotify requires an active Premium subscription to use the Developer API (even in Development Mode). The audio itself is downloaded from YouTube Music, but you need Premium to create the API credentials to fetch the metadata.
 
 **3. A Desktop VPN (If you want to get around a geoblock)**
-If you are in a country where parts of an artist's catalog are geo-restricted on Spotify, the API will not return those albums. Any free VPN will do. I recommend [Windscribe](https://windscribe.com/download) because of how easy it is to set
+If you are in a country where parts of an artist's catalog are geo-restricted on Spotify, the API will not return those albums. Any free VPN will do. I recommend [Windscribe](https://windscribe.com/download) because of how easy it is to set up.
 
 ---
 
