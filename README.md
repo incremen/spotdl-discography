@@ -108,5 +108,3 @@ The patches didn't find their target strings. `spotdl` may have been updated. Ch
 Spotify rate-limited your IP. Switch to a different VPN server or network and retry.
 
 ---
-
-*Built with [Claude Code](https://claude.ai/claude-code)*
