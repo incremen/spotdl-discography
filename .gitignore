@@ -1,3 +1,6 @@
+# credentials — never commit this
+.env
+
 # virtual environment
 .venv/
 

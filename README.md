@@ -19,17 +19,23 @@ python3 -m venv .venv
 
 ### 2. Get Spotify API credentials
 
-You need a free Spotify developer app:
+You need a Spotify developer app:
 
 1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
-2. Click **Create app** — name and description don't matter
+2. Click **Create app** — name and description don't matter. No Redirect URI needed (this script uses the Client Credentials flow, which is server-to-server and doesn't involve user login).
 3. Copy the **Client ID** and **Client Secret**
-4. Open `download_artist.py` and paste them in at the top:
+4. Copy `.env.example` to `.env` and fill it in:
 
-```python
-CLIENT_ID     = "your_client_id_here"
-CLIENT_SECRET = "your_client_secret_here"
+```bash
+cp .env.example .env
 ```
+
+```env
+SPOTIFY_CLIENT_ID=your_client_id_here
+SPOTIFY_CLIENT_SECRET=your_client_secret_here
+```
+
+> **Note on Spotify Premium:** As of early 2026, Spotify may require a Premium account to access the Developer Dashboard. The script itself only uses the free Client Credentials API flow (no user login), but whether you can *create* the credentials without Premium depends on Spotify's current policy — check the dashboard to confirm.
 
 ### 3. Connect to a VPN (if needed)
 

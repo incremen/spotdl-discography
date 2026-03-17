@@ -19,12 +19,18 @@ See README.md for full setup (credentials, VPN, etc.)
 import sys
 import importlib.util
 import subprocess
+from dotenv import load_dotenv
+import os
 
-# ── Your Spotify app credentials ─────────────────────────────────────────────
-# Create a free app at https://developer.spotify.com/dashboard
-# then paste your Client ID and Client Secret below.
-CLIENT_ID     = ""
-CLIENT_SECRET = ""
+load_dotenv()
+
+# ── Spotify app credentials ───────────────────────────────────────────────────
+# Create a .env file in this directory with:
+#   SPOTIFY_CLIENT_ID=your_id_here
+#   SPOTIFY_CLIENT_SECRET=your_secret_here
+# Get credentials at: https://developer.spotify.com/dashboard
+CLIENT_ID     = os.getenv("SPOTIFY_CLIENT_ID", "")
+CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")
 
 # ── Output folder structure ───────────────────────────────────────────────────
 # Files are saved relative to wherever you run this script from.
