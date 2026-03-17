@@ -138,6 +138,8 @@ def main():
     output_dir = sys.argv[2] if len(sys.argv) > 2 else DEFAULT_OUTPUT_DIR
     output_format = os.path.join(output_dir, OUTPUT_TEMPLATE)
 
+    os.makedirs(output_dir, exist_ok=True)
+
     if "open.spotify.com" not in artist_url:
         print(f"Error: doesn't look like a Spotify URL: {artist_url}")
         print("Example: https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK")
