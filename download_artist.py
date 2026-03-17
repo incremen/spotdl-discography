@@ -5,10 +5,11 @@ download_artist.py
 Downloads a Spotify artist's full discography as MP3s, organized into folders.
 
 Usage:
-    .venv/bin/python3 download_artist.py <spotify_artist_url>
+    .venv/bin/python3 download_artist.py <spotify_artist_url> [output_dir]
 
 Example:
     .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
+    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK" ~/Music
 
 How to get the artist URL:
     Open Spotify → right-click the artist name → Share → Copy link to artist
@@ -33,9 +34,10 @@ CLIENT_ID     = os.getenv("SPOTIFY_CLIENT_ID", "")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")
 
 # ── Output folder structure ───────────────────────────────────────────────────
-# Files are saved relative to wherever you run this script from.
-# Result: Artist/Album/01 - Track Title.mp3
-OUTPUT_FORMAT = "{artist}/{album}/{track-number} - {title}.{output-ext}"
+# Output path is: <output_dir>/Artist/Album/01 - Track Title.mp3
+# output_dir defaults to "downloads" if not passed as a second argument.
+OUTPUT_TEMPLATE = "{artist}/{album}/{track-number} - {title}.{output-ext}"
+DEFAULT_OUTPUT_DIR = "downloads"
 
 # ── Patches ───────────────────────────────────────────────────────────────────
 # Spotify's free-tier (Development Mode) API omits certain fields and enforces
@@ -133,6 +135,8 @@ def main():
         sys.exit(1)
 
     artist_url = sys.argv[1]
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else DEFAULT_OUTPUT_DIR
+    output_format = os.path.join(output_dir, OUTPUT_TEMPLATE)
 
     if "open.spotify.com" not in artist_url:
         print(f"Error: doesn't look like a Spotify URL: {artist_url}")
@@ -145,7 +149,7 @@ def main():
             sys.executable, "-m", "spotdl", artist_url,
             "--client-id",     CLIENT_ID,
             "--client-secret", CLIENT_SECRET,
-            "--output",        OUTPUT_FORMAT,
+            "--output",        output_format,
         ]
         print(f"Running: spotdl {artist_url}\n", flush=True)
         subprocess.run(cmd, check=False)
