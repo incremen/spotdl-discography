@@ -123,7 +123,7 @@ def revert_patches(applied):
 
 def main():
     if not CLIENT_ID or not CLIENT_SECRET:
-        print("Error: CLIENT_ID and CLIENT_SECRET are not set.")
+        print("Error: CLIENT_ID or CLIENT_SECRET are not set.")
         print("Add your Spotify app credentials at the top of this file.")
         print("Get them at: https://developer.spotify.com/dashboard")
         sys.exit(1)
