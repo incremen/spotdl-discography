@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/bin/python3 download_artist.py \"https://open.spotify.com/track/2P5yIMu2DNeMXTyOANKS6k\")"
+    ]
+  }
+}

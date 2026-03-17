@@ -13,9 +13,11 @@ See README.md for full setup instructions.
 """
 
 import sys
-import os
 import importlib.util
 import subprocess
+
+# Run spotdl via the same Python that's running this script (venv-aware)
+PYTHON = sys.executable
 
 # ── Spotify app credentials ───────────────────────────────────────────────────
 # From https://developer.spotify.com/dashboard
@@ -122,12 +124,12 @@ def main():
 
     try:
         cmd = [
-            "spotdl", artist_url,
+            PYTHON, "-m", "spotdl", artist_url,
             "--client-id",     CLIENT_ID,
             "--client-secret", CLIENT_SECRET,
             "--output",        OUTPUT_FORMAT,
         ]
-        print(f"Running spotdl for: {artist_url}\n")
+        print(f"Running spotdl for: {artist_url}\n", flush=True)
         subprocess.run(cmd, check=False)
     finally:
         revert_patches(applied)
