@@ -110,6 +110,9 @@ def apply_patches():
             applied.append((path, patch["find"], patch["replace"]))
         else:
             print(f"  ! Could not patch ({path}): {patch['reason']}")
+            print("    spotdl may have been updated — check README troubleshooting.")
+            revert_patches(applied)
+            sys.exit(1)
     print()
     return applied
 
@@ -126,9 +129,11 @@ def revert_patches(applied):
 
 def main():
     if not CLIENT_ID or not CLIENT_SECRET:
-        print("Error: CLIENT_ID or CLIENT_SECRET are not set.")
-        print("Add your Spotify app credentials at the top of this file.")
-        print("Get them at: https://developer.spotify.com/dashboard")
+        print("Error: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET are not set.")
+        print("Create a .env file in this directory with:")
+        print("  SPOTIFY_CLIENT_ID=your_id_here")
+        print("  SPOTIFY_CLIENT_SECRET=your_secret_here")
+        print("Get credentials at: https://developer.spotify.com/dashboard")
         sys.exit(1)
 
     if len(sys.argv) < 2:

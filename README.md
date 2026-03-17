@@ -24,11 +24,7 @@ You need a Spotify developer app:
 1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
 2. Click **Create app** — name and description don't matter. No Redirect URI needed (this script uses the Client Credentials flow, which is server-to-server and doesn't involve user login).
 3. Copy the **Client ID** and **Client Secret**
-4. Copy `.env.example` to `.env` and fill it in:
-
-```bash
-cp .env.example .env
-```
+4. Create a `.env` file in the project root:
 
 ```env
 SPOTIFY_CLIENT_ID=your_client_id_here
@@ -101,7 +97,7 @@ Development Mode strips several fields from API responses (`label`, `genres`, `p
 
 All of these are patched with `.get()` fallbacks. None of them affect the actual download.
 
-The patches are always reverted when the script finishes — even if it crashes or you hit Ctrl+C. If the process is hard-killed (e.g. power loss), the patches will remain in the library files, but re-running the script detects this and cleans them up automatically before reverting at the end.
+The patches are always reverted when the script finishes — even if it crashes or you hit Ctrl+C. If the process is hard-killed (e.g. power loss), the patches will remain in the library files, but re-running the script detects the existing patches, uses them, and reverts them cleanly at the end of that run.
 
 ---
 
