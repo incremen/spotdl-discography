@@ -55,7 +55,12 @@ The VPN has to run directly on the machine running the script.
 .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/ARTIST_ID"
 ```
 
-**How to get the artist URL:** open Spotify → right-click the artist name → Share → Copy link to artist
+**How to get the artist URL:**
+1. Open Spotify and go to the artist's page
+2. Right-click the artist name (or click the `...` menu) → **Share** → **Copy link to artist**
+3. It'll look like: `https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK`
+
+The long string at the end (`2uYWxilOVlUdk4oV9DvwqK`) is the artist ID — that's what uniquely identifies the artist in the Spotify API. Just paste the full URL into the script; you don't need to extract the ID separately.
 
 **Example:**
 ```bash
