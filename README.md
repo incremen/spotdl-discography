@@ -1,14 +1,27 @@
 # spotdl-discography
 
-Download a full Spotify artist discography as MP3s, sorted into `Artist/Album/Track` folders. Built with [Claude Code](https://claude.ai/claude-code) to solve a bunch of annoying problems that come up when you try to do this the obvious way.
+Download a full Spotify artist discography as MP3s, sorted into `Artist/Album/Track` folders. You can use this to gain access to songs spotify geoblocked from you.
 
-It uses [spotdl](https://github.com/spotDL/spotify-downloader) under the hood — which pulls metadata from Spotify and audio from YouTube Music — so no Spotify Premium required.
+---
+
+## Requirements
+
+Before using this script, make sure you have the following:
+
+**1. Python 3.8+**
+Check with `python3 --version`. If you don't have it, download it from [python.org](https://www.python.org/downloads/).
+
+**2. Spotify Premium (Required)**
+As of March 9, 2026, Spotify requires an active Premium subscription to use the Developer API (even in Development Mode). The audio itself is downloaded from YouTube Music, but you need Premium to create the API credentials to fetch the metadata.
+
+**3. A Desktop VPN (If you want to get around a geoblock)**
+If you are in a country where parts of an artist's catalog are geo-restricted on Spotify, the API will not return those albums. Any free VPN will do. I recommend [Windscribe](https://windscribe.com/download) because of how easy it is to set
 
 ---
 
 ## Setup
 
-### 1. Clone and create a virtual environment
+### 1. Clone and initialize
 
 ```bash
 git clone <repo-url>
@@ -19,11 +32,9 @@ python3 -m venv .venv
 
 ### 2. Get Spotify API credentials
 
-You need a Spotify developer app:
-
-1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
-2. Click **Create app** — name and description don't matter. No Redirect URI needed (this script uses the Client Credentials flow, which is server-to-server and doesn't involve user login).
-3. Copy the **Client ID** and **Client Secret**
+1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+2. Click **Create app** (Name and description do not matter. No Redirect URI is needed as this uses the Client Credentials flow).
+3. Copy the **Client ID** and **Client Secret**.
 4. Create a `.env` file in the project root:
 
 ```env
@@ -31,40 +42,24 @@ SPOTIFY_CLIENT_ID=your_client_id_here
 SPOTIFY_CLIENT_SECRET=your_client_secret_here
 ```
 
-> **Spotify Premium required:** As of March 9, 2026, Spotify requires an active Premium subscription to use the Developer API (even in Development Mode). The audio itself is downloaded from YouTube Music so Premium isn't needed for the download — but you do need it to create the API credentials in the first place.
+---
 
-### 3. Connect to a VPN (if needed)
+## Usage
 
-If you're in a country where parts of an artist's catalog are geo-restricted on Spotify, the API simply won't return those albums — you'll get a partial download without any error. A VPN set to the US or UK fixes this.
+### 1. Get the artist URL
+1. Open Spotify and go to the artist's page.
+2. Right-click the artist name (or click the `...` menu) → **Share** → **Copy link to artist**.
+3. It will look like: `https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK` (You can paste this full URL directly; you do not need to extract the ID).
 
-A couple of things that *don't* work:
-- A VPN on your phone while using it as a hotspot — the Mac still goes through your ISP
-- Setting a `market` parameter in the API call — Spotify ignores it and uses the request IP anyway
+### 2. Run the script
+Pass the URL to the script:
 
-The VPN has to run directly on the machine running the script.
-
-**Note:** the country your Spotify account or Developer app is registered in doesn't matter — catalog filtering is based purely on the IP of the API request, not the account's location. So even if you created your credentials from a geo-restricted country, a VPN on the machine is all you need.
-
-### 4. Run it
-
-```bash
-.venv/bin/python3 download_artist.py "https://open.spotify.com/artist/ARTIST_ID"
-```
-
-**How to get the artist URL:**
-1. Open Spotify and go to the artist's page
-2. Right-click the artist name (or click the `...` menu) → **Share** → **Copy link to artist**
-3. It'll look like: `https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK`
-
-The long string at the end (`2uYWxilOVlUdk4oV9DvwqK`) is the artist ID — that's what uniquely identifies the artist in the Spotify API. Just paste the full URL into the script; you don't need to extract the ID separately.
-
-**Example:**
-```bash
-.venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
+```bash 
+python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
 ```
 
 Downloads land in the current directory, organized as:
-```
+```text
 Mitski/
   Puberty 2/
     01 - Happy.mp3
@@ -75,19 +70,19 @@ Mitski/
     ...
 ```
 
-Re-running skips already-downloaded tracks automatically, so it's safe to run again if something was interrupted.
+*Note: Re-running the script automatically skips tracks that are already downloaded, making it safe to resume if interrupted.*
 
 ---
 
 ## Why this wrapper script exists
 
-Running `spotdl` directly against a Spotify artist URL breaks in a few ways when using a standard Development Mode app. The script patches the library before running and reverts it after, so the library files stay untouched between runs.
+Running `spotdl` directly against a Spotify artist URL breaks in a few ways when using a standard Development Mode app. The script patches the library before running and reverts it after, keeping the library files untouched between runs.
 
 **Problem 1 — page size cap**
-Development Mode limits the `artist_albums` endpoint to 10 results per page, but spotdl requests 20. Spotify returns `400 Invalid limit`.
+Development Mode limits the `artist_albums` endpoint to 10 results per page, but `spotdl` requests 20. Spotify returns `400 Invalid limit`.
 
 **Problem 2 — missing metadata fields**
-Development Mode strips several fields from API responses (`label`, `genres`, `popularity`) that spotdl tries to access directly, causing `KeyError` crashes.
+Development Mode strips several fields from API responses (`label`, `genres`, `popularity`) that `spotdl` tries to access directly, causing `KeyError` crashes.
 
 | Missing field | Crashes in | Error |
 |---|---|---|
@@ -97,20 +92,20 @@ Development Mode strips several fields from API responses (`label`, `genres`, `p
 
 All of these are patched with `.get()` fallbacks. None of them affect the actual download.
 
-The patches are always reverted when the script finishes — even if it crashes or you hit Ctrl+C. If the process is hard-killed (e.g. power loss), the patches will remain in the library files, but re-running the script detects the existing patches, uses them, and reverts them cleanly at the end of that run.
+The patches are reverted when the script finishes—even if it crashes or you hit Ctrl+C. If the process is hard-killed (e.g., power loss), the patches will remain in the library files. Re-running the script detects the existing patches, uses them, and reverts them cleanly at the end of that run.
 
 ---
 
 ## Troubleshooting
 
 **Got fewer songs than expected**
-The VPN probably isn't routing the Mac's traffic. Reconnect and retry. You can confirm it's working by checking whether the Spotify search API returns results in your language or the VPN country's language.
+The VPN probably isn't routing your machine's traffic. Reconnect and retry. You can confirm the VPN is working by checking if the Spotify search API returns results in the VPN country's language.
 
 **`400 Invalid limit` or `KeyError` errors**
-The patches didn't find their target strings — spotdl may have been updated. Check `spotdl --version` and compare against what's in `requirements.txt`. If it changed, the find/replace strings in `download_artist.py` may need updating to match the new library code.
+The patches didn't find their target strings. `spotdl` may have been updated. Check `spotdl --version` against `requirements.txt`. If it changed, the find/replace strings in `download_artist.py` may need updating to match the new library code.
 
 **`Retry will occur after: 86400s`**
-Spotify rate-limited your IP. Switch VPN server or network and retry.
+Spotify rate-limited your IP. Switch to a different VPN server or network and retry.
 
 ---
 
