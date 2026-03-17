@@ -47,6 +47,8 @@ A couple of things that *don't* work:
 
 The VPN has to run directly on the machine running the script.
 
+**Note:** the country your Spotify account or Developer app is registered in doesn't matter — catalog filtering is based purely on the IP of the API request, not the account's location. So even if you created your credentials from a geo-restricted country, a VPN on the machine is all you need.
+
 ### 4. Run it
 
 ```bash
