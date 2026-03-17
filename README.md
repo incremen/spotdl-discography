@@ -101,6 +101,8 @@ Development Mode strips several fields from API responses (`label`, `genres`, `p
 
 All of these are patched with `.get()` fallbacks. None of them affect the actual download.
 
+The patches are always reverted when the script finishes — even if it crashes or you hit Ctrl+C. If the process is hard-killed (e.g. power loss), the patches will remain in the library files, but re-running the script detects this and cleans them up automatically before reverting at the end.
+
 ---
 
 ## Troubleshooting
