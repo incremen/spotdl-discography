@@ -35,7 +35,7 @@ SPOTIFY_CLIENT_ID=your_client_id_here
 SPOTIFY_CLIENT_SECRET=your_client_secret_here
 ```
 
-> **Note on Spotify Premium:** As of early 2026, Spotify may require a Premium account to access the Developer Dashboard. The script itself only uses the free Client Credentials API flow (no user login), but whether you can *create* the credentials without Premium depends on Spotify's current policy — check the dashboard to confirm.
+> **Spotify Premium required:** As of March 9, 2026, Spotify requires an active Premium subscription to use the Developer API (even in Development Mode). The audio itself is downloaded from YouTube Music so Premium isn't needed for the download — but you do need it to create the API credentials in the first place.
 
 ### 3. Connect to a VPN (if needed)
 
