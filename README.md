@@ -17,12 +17,12 @@ Downloads a Spotify artist's full discography as MP3s, organized into folders by
 
 ```bash
 cd /Users/itamar/vscode_projects/download_songs
-python3 download_artist.py "SPOTIFY_ARTIST_URL"
+.venv/bin/python3 download_artist.py "SPOTIFY_ARTIST_URL"
 ```
 
 **Example — Mitski:**
 ```bash
-python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
+.venv/bin/python3 download_artist.py "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK"
 ```
 
 To get an artist URL: open Spotify → right-click the artist name → Share → Copy link to artist.
@@ -81,8 +81,16 @@ These were created at https://developer.spotify.com/dashboard. If they expire or
 
 ## Requirements
 
+A virtual environment is set up at `.venv/` with all dependencies installed. Use it when running the script:
+
 ```bash
-pip3 install spotdl
+.venv/bin/python3 download_artist.py "SPOTIFY_ARTIST_URL"
+```
+
+To recreate it from scratch:
+```bash
+python3 -m venv .venv
+.venv/bin/pip install spotdl
 ```
 
 spotdl downloads audio from YouTube Music using the Spotify metadata for matching. No Spotify Premium required.
