@@ -96,25 +96,31 @@ def apply_patches():
     applied = []
     print("Applying patches for Spotify Development Mode compatibility...")
     for patch in PATCHES:
-        path = get_lib_path(patch["module"])
-        with open(path, "r") as f:
-            content = f.read()
-        if patch["find"] in content:
-            patched = content.replace(patch["find"], patch["replace"])
-            with open(path, "w") as f:
-                f.write(patched)
-            applied.append((path, patch["find"], patch["replace"]))
-            print(f"  + {patch['reason']}")
-        elif patch["replace"] in content:
-            print(f"  = Already applied (will still revert): {patch['reason']}")
-            applied.append((path, patch["find"], patch["replace"]))
-        else:
-            print(f"  ! Could not patch ({path}): {patch['reason']}")
-            print("    spotdl may have been updated — check README troubleshooting.")
-            revert_patches(applied)
-            sys.exit(1)
+        apply_patch(applied, patch)
     print()
     return applied
+
+def apply_patch(applied, patch):
+    path = get_lib_path(patch["module"])
+
+    with open(path, "r") as f:
+        content = f.read()
+    if patch["find"] in content:
+        patched = content.replace(patch["find"], patch["replace"])
+        with open(path, "w") as f:
+            f.write(patched)
+        applied.append((path, patch["find"], patch["replace"]))
+        print(f"  + {patch['reason']}")
+
+    elif patch["replace"] in content:
+        print(f"  = Already applied (will still revert): {patch['reason']}")
+        applied.append((path, patch["find"], patch["replace"]))
+        
+    else:
+        print(f"  ! Could not patch ({path}): {patch['reason']}")
+        print("    spotdl may have been updated — check README troubleshooting.")
+        revert_patches(applied)
+        sys.exit(1)
 
 
 def revert_patches(applied):
