@@ -65,9 +65,6 @@ Radiohead/
     01 - Airbag.mp3
     02 - Paranoid Android.mp3
     ...
-  Be the Cowboy/
-    01 - Geyser.mp3
-    ...
 ```
 
 *Note: Re-running the script automatically skips tracks that are already downloaded, making it safe to resume if interrupted.*
