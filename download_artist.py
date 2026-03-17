@@ -106,7 +106,8 @@ def apply_patches():
             applied.append((path, patch["find"], patch["replace"]))
             print(f"  + {patch['reason']}")
         elif patch["replace"] in content:
-            print(f"  = Already applied: {patch['reason']}")
+            print(f"  = Already applied (will still revert): {patch['reason']}")
+            applied.append((path, patch["find"], patch["replace"]))
         else:
             print(f"  ! Could not patch ({path}): {patch['reason']}")
     print()
