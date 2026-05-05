@@ -2,14 +2,14 @@
 """
 download_artist.py
 
-Downloads a Spotify artist's full discography as MP3s, organized into folders.
+Downloads Spotify artists' full discographies as MP3s, organized into folders.
 
 Usage:
-    .venv/bin/python3 download_artist.py <spotify_artist_url> [output_dir]
+    .venv/bin/python3 download_artist.py <spotify_artist_url> [<spotify_artist_url> ...] [-o output_dir]
 
 Example:
     .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb"
-    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb" ~/Music
+    .venv/bin/python3 download_artist.py "https://open.spotify.com/artist/4Z8..." "https://open.spotify.com/artist/6XyY..." -o ~/Music
 
 How to get the artist URL:
     Open Spotify → right-click the artist name → Share → Copy link to artist
@@ -17,6 +17,7 @@ How to get the artist URL:
 See README.md for full setup (credentials, VPN, etc.)
 """
 
+import argparse
 import sys
 import importlib.util
 import subprocess
@@ -142,31 +143,35 @@ def main():
         print("Get credentials at: https://developer.spotify.com/dashboard")
         sys.exit(1)
 
-    if len(sys.argv) < 2:
-        print(__doc__)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="Download Spotify artists' discographies as MP3s.",
+        usage="%(prog)s <spotify_artist_url> [<spotify_artist_url> ...] [-o output_dir]",
+    )
+    parser.add_argument("artist_urls", nargs="+", help="Spotify artist URL(s)")
+    parser.add_argument("-o", "--output-dir", default=DEFAULT_OUTPUT_DIR,
+                        help=f"Output directory (default: {DEFAULT_OUTPUT_DIR})")
+    args = parser.parse_args()
 
-    artist_url = sys.argv[1]
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else DEFAULT_OUTPUT_DIR
-    output_format = os.path.join(output_dir, OUTPUT_TEMPLATE)
+    output_format = os.path.join(args.output_dir, OUTPUT_TEMPLATE)
+    os.makedirs(args.output_dir, exist_ok=True)
 
-    os.makedirs(output_dir, exist_ok=True)
-
-    if "open.spotify.com" not in artist_url:
-        print(f"Error: doesn't look like a Spotify URL: {artist_url}")
-        print("Example: https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb")
-        sys.exit(1)
+    for url in args.artist_urls:
+        if "open.spotify.com" not in url:
+            print(f"Error: doesn't look like a Spotify URL: {url}")
+            print("Example: https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb")
+            sys.exit(1)
 
     applied = apply_patches()
     try:
-        cmd = [
-            sys.executable, "-m", "spotdl", artist_url,
-            "--client-id",     CLIENT_ID,
-            "--client-secret", CLIENT_SECRET,
-            "--output",        output_format,
-        ]
-        print(f"Running: spotdl {artist_url}\n", flush=True)
-        subprocess.run(cmd, check=False)
+        for url in args.artist_urls:
+            cmd = [
+                sys.executable, "-m", "spotdl", url,
+                "--client-id",     CLIENT_ID,
+                "--client-secret", CLIENT_SECRET,
+                "--output",        output_format,
+            ]
+            print(f"Running: spotdl {url}\n", flush=True)
+            subprocess.run(cmd, check=False)
     finally:
         revert_patches(applied)
 

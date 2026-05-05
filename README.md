@@ -52,10 +52,24 @@ SPOTIFY_CLIENT_SECRET=your_client_secret_here
 3. It will look like: `https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb` (You can paste this full URL directly; you do not need to extract the ID).
 
 ### 2. Run the script
-Pass the URL to the script:
+Pass one or more artist URLs to the script:
 
 ```bash
 python3 download_artist.py "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb"
+```
+
+To download several artists in one run, pass multiple URLs:
+
+```bash
+python3 download_artist.py \
+  "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb" \
+  "https://open.spotify.com/artist/6XyY86QOPPRYVVvWHfxyVV"
+```
+
+To change the output directory, use `-o`:
+
+```bash
+python3 download_artist.py "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb" -o ~/Music
 ```
 
 Downloads land in `downloads/`, organized as:
